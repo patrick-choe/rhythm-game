@@ -1,0 +1,18 @@
+move-speed: 5
+rhythm-music: "hisa.hypocrisy"
+studio-length: 20
+rhythm-modifier: -0.4
+rhythm-points:
+  poop: -2.4
+  good: -1.9
+  great: -1.2
+  perfect: -0.4
+  destroy: 0.2
+studio-center:
+  world: "world"
+  x: 103.5
+  y: 65.0
+  z: 551.5
+giver: PatrickKR
+receivers:
+  RED: PatrickKR

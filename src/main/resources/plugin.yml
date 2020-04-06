@@ -1,0 +1,23 @@
+name: RhythmCraft
+version: 0.1-alpha
+description: A rhythm game for minecraft server 1.12.2
+api-version: "1.12"
+load: POSTWORLD
+authors: [PatrickKR]
+website: https://github.com/patrick-mc
+main: com.github.patrick.rhythm.plugin.RhythmPlugin
+database: false
+depend: [Tap, Kotlin]
+prefix: RHYTHM
+commands:
+  rhythm:
+    description: Rhythm Game Command
+    aliases: [rc]
+    permission: command.typing
+    permission-message: You do not have permission to use typing game commands.
+    usage: "Usage: /<command> help"
+default-permission: op
+permissions:
+  command.rhythm:
+    default: op
+    description: Typing Game Command Permission
