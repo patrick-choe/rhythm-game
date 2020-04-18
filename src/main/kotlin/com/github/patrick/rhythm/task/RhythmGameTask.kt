@@ -19,6 +19,8 @@
 
 package com.github.patrick.rhythm.task
 
+import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointDestroy
+import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointPerfect
 import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmMusic
 import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmStudioCenter
 import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmBlocks
@@ -45,7 +47,7 @@ class RhythmGameTask : RhythmTask {
             dispatchCommand(getConsoleSender(), "playsound $rhythmMusic master ${rhythmSender.name} ${rhythmStudioCenter.x} ${rhythmStudioCenter.y} ${rhythmStudioCenter.z} 10000 1 1")
             getOnlinePlayers().forEach { it.inventory.heldItemSlot = 4 }
         }
-        if (ticks == (totalTicks * rhythmLength).roundToInt()) rhythmReceivers.values.forEach {
+        if (ticks == ((totalTicks * rhythmLength) + (pointPerfect + pointDestroy) / 2).roundToInt()) rhythmReceivers.values.forEach {
             dispatchCommand(getConsoleSender(), "playsound $rhythmMusic master ${it.name} ${rhythmStudioCenter.x} ${rhythmStudioCenter.y} ${rhythmStudioCenter.z} 10000 1 1")
         }
 
