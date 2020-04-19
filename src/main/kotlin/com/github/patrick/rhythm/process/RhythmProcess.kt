@@ -19,9 +19,11 @@
 
 package com.github.patrick.rhythm.process
 
+import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmMusic
 import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmReceivers
 import com.github.patrick.rhythm.util.RhythmColor
 import org.bukkit.Bukkit.broadcast
+import org.bukkit.Bukkit.getOnlinePlayers
 import org.bukkit.Bukkit.getPlayerExact
 import org.bukkit.Bukkit.getScoreboardManager
 import org.bukkit.scoreboard.Team
@@ -49,6 +51,7 @@ object RhythmProcess {
     }
 
     fun stopProcess() {
+        getOnlinePlayers().forEach { it.stopSound(rhythmMusic) }
         RhythmGame.rhythmBlocks.values.forEach { blocks -> blocks.forEach { it.destroy() } }
         if (game == null) broadcast("진행중인 게임이 없습니다.", "command.rhythm").also { return }
         game?.unregister()

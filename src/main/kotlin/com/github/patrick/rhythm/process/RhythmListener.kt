@@ -103,7 +103,6 @@ class RhythmListener : Listener {
                 }
             }
             highestBlock?.let {
-                println(highestScore)
                 when {
                     highestScore > pointPerfect -> {
                         score = 4
@@ -122,15 +121,15 @@ class RhythmListener : Listener {
                         Packet.INFO.chat(ChatColor.LIGHT_PURPLE.toString() + "POOP", GAME_INFO).sendTo(player)
                     }
                     else -> {
-                        Packet.INFO.chat(ChatColor.RED.toString() + "MISS", GAME_INFO).sendTo(player)
-                        team.connection = 0
-                        team.multiplier = 1
+                        team.miss()
                         return@let
                     }
                 }
                 team.addScore(score)
                 it.destroy()
+                return
             }
+            team.miss()
         }
         player.inventory.heldItemSlot = 4
     }

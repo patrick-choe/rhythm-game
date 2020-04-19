@@ -1,5 +1,5 @@
 name: RhythmCraft
-version: 0.1-alpha
+version: 0.2-beta
 description: A rhythm game for minecraft server 1.12.2
 api-version: "1.12"
 load: POSTWORLD

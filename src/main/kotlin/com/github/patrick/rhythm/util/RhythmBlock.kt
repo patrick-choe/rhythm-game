@@ -47,7 +47,7 @@ class RhythmBlock(loc: Location, val team: RhythmTeam, private val bulletItem: T
         tapArmorStand?.apply { setUp(this) }
         armorStand = tapArmorStand?.bukkitEntity
         spawnTo(getOnlinePlayers())
-        tapArmorStand?.setPosition(loc.x, loc.y, loc.z)
+        tapArmorStand?.setPositionAndRotation(loc.x, loc.y, loc.z, 45F, 0F)
     }
 
     fun destroy() {

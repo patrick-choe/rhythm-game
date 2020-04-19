@@ -20,12 +20,9 @@
 package com.github.patrick.rhythm.task
 
 import com.github.noonmaru.tap.packet.Packet
-import com.github.patrick.rhythm.process.RhythmGame.Companion.onlineRhythmPlayers
 import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmTeams
 import com.github.patrick.rhythm.util.RhythmTeam
 import org.bukkit.Bukkit.broadcastMessage
-import org.bukkit.Bukkit.dispatchCommand
-import org.bukkit.Bukkit.getConsoleSender
 import org.bukkit.ChatColor
 
 class RhythmResultTask : RhythmTask {
@@ -34,12 +31,18 @@ class RhythmResultTask : RhythmTask {
      * method in 'Runnable'
      */
     override fun execute(): RhythmTask? {
-        onlineRhythmPlayers.keys.forEach { dispatchCommand(getConsoleSender(), "stopsound ${it.name}") }
         val teams = ArrayList(rhythmTeams.values).apply {
             sortWith(Comparator { team1: RhythmTeam, team2: RhythmTeam -> team2.score.score.compareTo(team1.score.score) } )
         }
         Packet.TITLE.compound(ChatColor.RED.toString() + "게임종료!", "우승: ${teams.first().displayName}", 5, 60, 10).sendAll()
-        teams.forEachIndexed { index, typingTeam -> broadcastMessage("${index + 1}. ${typingTeam.displayName}") }
+        teams.forEachIndexed { index, team -> broadcastMessage(
+            "${index + 1}. ${team.displayName}(${team.score.score})${ChatColor.WHITE} ->" +
+                " ${ChatColor.AQUA}PERFECT: ${team.scoreMap[4]}" +
+                " ${ChatColor.GREEN}GREAT: ${team.scoreMap[3]}" +
+                " ${ChatColor.GOLD}GOOD: ${team.scoreMap[2]}" +
+                " ${ChatColor.LIGHT_PURPLE}POOP: ${team.scoreMap[1]}" +
+                " ${ChatColor.RED}MISS: ${team.scoreMap[0]}" +
+                " ${ChatColor.GRAY} MAX COMBO: ${team.maxCombo}") }
         return null
     }
 }

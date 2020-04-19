@@ -22,16 +22,14 @@ package com.github.patrick.rhythm.task
 import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointDestroy
 import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointPerfect
 import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmMusic
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmStudioCenter
 import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmBlocks
 import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmLength
 import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmReceivers
 import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmSender
 import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmStatus
 import com.github.patrick.rhythm.process.RhythmGame.Companion.totalTicks
-import org.bukkit.Bukkit.dispatchCommand
-import org.bukkit.Bukkit.getConsoleSender
 import org.bukkit.Bukkit.getOnlinePlayers
+import org.bukkit.SoundCategory.MASTER
 import kotlin.math.roundToInt
 
 class RhythmGameTask : RhythmTask {
@@ -44,11 +42,11 @@ class RhythmGameTask : RhythmTask {
         ++ticks
         rhythmBlocks.values.forEach { blocks -> blocks.forEach { it.onUpdate() } }
         if (ticks == 0) {
-            dispatchCommand(getConsoleSender(), "playsound $rhythmMusic master ${rhythmSender.name} ${rhythmStudioCenter.x} ${rhythmStudioCenter.y} ${rhythmStudioCenter.z} 10000 1 1")
+            rhythmSender.player.playSound(rhythmSender.player.location, rhythmMusic, MASTER, 60000000F, 1F)
             getOnlinePlayers().forEach { it.inventory.heldItemSlot = 4 }
         }
         if (ticks == ((totalTicks * rhythmLength) + (pointPerfect + pointDestroy) / 2).roundToInt()) rhythmReceivers.values.forEach {
-            dispatchCommand(getConsoleSender(), "playsound $rhythmMusic master ${it.name} ${rhythmStudioCenter.x} ${rhythmStudioCenter.y} ${rhythmStudioCenter.z} 10000 1 1")
+            it.player.playSound(it.player.location, rhythmMusic, MASTER, 60000000F, 1F)
         }
 
         return if (rhythmStatus) this else RhythmResultTask()

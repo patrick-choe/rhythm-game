@@ -19,34 +19,51 @@
 
 package com.github.patrick.rhythm.util
 
+import com.github.noonmaru.tap.ChatType
 import com.github.noonmaru.tap.packet.Packet
 import org.bukkit.Bukkit.broadcastMessage
+import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import org.bukkit.scoreboard.Score
 import org.bukkit.scoreboard.Team
 
 class RhythmTeam(team: Team, val color: RhythmColor, score: Score) {
     val displayName = team.prefix + team.displayName
+    val scoreMap = HashMap<Int, Int>()
     lateinit var rhythmReceiver: RhythmReceiver
     var multiplier = 1
     var connection = 0
     var score = score
         private set
+    var maxCombo = 0
+        private set
 
     init {
         score.score = 0
+        setOf(0, 1, 2, 3, 4).forEach { scoreMap[it] = 0 }
     }
 
     fun addScore(amount: Int) {
         score.score += (amount * multiplier)
         if (++connection > 9) {
             connection = 0
-            if (++multiplier % 4 == 0) broadcastMessage("$displayName just got x$multiplier!")
-            Packet.TITLE.compound("Multiplier: x$multiplier", null, 5, 10, 5)
+            rhythmReceiver.player.sendMessage("Multiplier: x$multiplier")
         }
+        val temp = scoreMap[amount]?: return
+        scoreMap[amount] = temp + 1
     }
 
     fun setPlayer(player: Player) {
         rhythmReceiver = RhythmReceiver(player, this)
+    }
+
+    fun miss() {
+        Packet.INFO.chat(ChatColor.RED.toString() + "MISS", ChatType.GAME_INFO).sendTo(rhythmReceiver.player)
+        var temp = connection + multiplier * 10
+        if (temp > maxCombo) maxCombo = temp
+        connection = 0
+        multiplier = 1
+        temp = scoreMap[0]?: return
+        scoreMap[0] = temp + 1
     }
 }
