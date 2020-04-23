@@ -29,14 +29,14 @@ class RhythmReceiver(val player: Player, val team: RhythmTeam) : RhythmPlayer(pl
     override fun prepare() {
         val length = 6.0 + rhythmStudioLength
         val direction = team.color.direction
-        player.teleport(rhythmStudioCenter.clone().add(direction.dx * length, 0.0, direction.dz * length))
-        player.location.pitch = when (direction) {
+        val location = rhythmStudioCenter.clone().add(direction.dx * length, 0.0, direction.dz * length)
+        location.pitch = when (direction) {
             RhythmDirection.NORTH -> 180F
             RhythmDirection.EAST -> 270F
             RhythmDirection.SOUTH -> 0F
             RhythmDirection.WEST -> 90F
         }
-
+        player.teleport(location)
         player.gameMode = GameMode.ADVENTURE
         player.health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).baseValue
         player.allowFlight = true

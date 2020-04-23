@@ -32,18 +32,26 @@ import com.github.patrick.rhythm.util.RhythmReceiver
 import com.github.patrick.rhythm.util.RhythmSender
 import com.github.patrick.rhythm.util.RhythmTeam
 import org.bukkit.Bukkit.getPlayerExact
-import org.bukkit.Bukkit.getPluginManager
 import org.bukkit.Bukkit.getScheduler
 import org.bukkit.Bukkit.getScoreboardManager
 import org.bukkit.ChatColor
+import org.bukkit.Material.WOOL
 import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList.unregisterAll
+import org.bukkit.inventory.ItemStack
+import org.bukkit.scheduler.BukkitTask
 import org.bukkit.scoreboard.DisplaySlot
 import org.bukkit.scoreboard.Team
 import java.util.IdentityHashMap
 import java.util.UUID
 
+/**
+ * Rhythm game instance
+ */
 class RhythmGame(teams: HashMap<Team, RhythmColor>) {
+    /**
+     * Stores game variables
+     */
     companion object {
         var rhythmStatus = false
         var rhythmLength = rhythmStudioLength + rhythmModifier
@@ -52,11 +60,15 @@ class RhythmGame(teams: HashMap<Team, RhythmColor>) {
         val rhythmReceivers = HashMap<UUID, RhythmReceiver>()
         val onlineRhythmPlayers = IdentityHashMap<Player, RhythmPlayer>()
         lateinit var rhythmSender: RhythmSender
+        private lateinit var task: BukkitTask
 
         val rhythmBlocks = HashMap<RhythmColor, ArrayList<RhythmBlock>>()
         fun newBlock(block: RhythmBlock) = rhythmBlocks[block.team.color]?.add(block)
     }
 
+    /**
+     * Called on initial process
+     */
     init {
         val scoreboard = getScoreboardManager().mainScoreboard
         scoreboard.getObjective("rhythm")?.apply { this.unregister() }
@@ -84,15 +96,28 @@ class RhythmGame(teams: HashMap<Team, RhythmColor>) {
             rhythmReceivers[rhythmReceiver.uniqueId] = rhythmReceiver
             onlineRhythmPlayers[rhythmReceiver.player] = rhythmReceiver
         }
-
         if (teams.isEmpty()) throw IllegalArgumentException("Teams cannot be empty")
 
-        getPluginManager().registerEvents(RhythmListener(), instance)
-        getScheduler().runTaskTimer(instance, RhythmScheduler(), 0, 1)
+        onlineRhythmPlayers.keys.forEach {
+            it.inventory?.apply {
+                for (i in 0..8) setItem(i, ItemStack(WOOL, 1, when (i) {
+                    0, 8 -> 14
+                    1, 7 -> 4
+                    2, 6 -> 5
+                    3, 5 -> 9
+                    else -> 0
+                }.toShort()))
+            }
+        }
+
+        task = getScheduler().runTaskTimer(instance, RhythmScheduler(), 0, 1)
     }
 
+    /**
+     * Unregisters listeners and tasks
+     */
     fun unregister() {
         unregisterAll(instance)
-        getScheduler().cancelTasks(instance)
+        task.cancel()
     }
 }

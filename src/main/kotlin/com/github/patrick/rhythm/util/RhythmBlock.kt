@@ -53,31 +53,30 @@ class RhythmBlock(loc: Location, val team: RhythmTeam, private val bulletItem: T
     fun destroy() {
         tapArmorStand?.let { Packet.ENTITY.destroy(it.id).sendAll() }
         dead = true
-
     }
 
-    fun spawnTo(players: Collection<Player?>?) = players?.let { collection ->
-        updateEquipmentTo(collection)
-        Packet.ENTITY.metadata(armorStand).sendTo(collection)
-        tapArmorStand?.let { Packet.ENTITY.teleport(armorStand, it.posX, it.posY, it.posZ, it.yaw, it.pitch, false).sendTo(players) }
-        if (ticks < 1) Packet.ENTITY.spawnMob(armorStand).sendTo(collection)
+    fun spawnTo(players: Collection<Player?>?) = players?.let {
+        updateEquipmentTo(it)
+        Packet.ENTITY.metadata(armorStand).sendTo(it)
+        tapArmorStand?.apply { Packet.ENTITY.teleport(armorStand, posX, posY, posZ, 45F, 0F, false).sendTo(players) }
+        if (ticks < 1) Packet.ENTITY.spawnMob(armorStand).sendTo(it)
     }
 
     private fun setUp(stand: TapArmorStand) {
-        stand.let {
-            it.isInvisible = true
-            it.isMarker = true
-            it.setGravity(false)
-            it.setBasePlate(false)
+        stand.apply {
+            isInvisible = true
+            isMarker = true
+            setGravity(false)
+            setBasePlate(false)
         }
     }
 
-    private fun updateEquipmentTo(players: Collection<Player?>?) = players?.let { collection ->
-        tapArmorStand?.id?.let { Packet.ENTITY.equipment(it, EquipmentSlot.HEAD, bulletItem).sendTo(collection) }
+    private fun updateEquipmentTo(players: Collection<Player?>?) = players?.apply {
+        tapArmorStand?.id?.let { Packet.ENTITY.equipment(it, EquipmentSlot.HEAD, bulletItem).sendTo(this) }
     }
 
     fun onUpdate() {
-        armorStand?.location?.let {
+        armorStand?.location?.apply {
             spawnTo(getOnlinePlayers())
             if (dead) return
 
@@ -88,7 +87,7 @@ class RhythmBlock(loc: Location, val team: RhythmTeam, private val bulletItem: T
                     removed = true
                     return
                 }
-                tapArmorStand?.setPositionAndRotation(it.x + moveSpeed * team.color.direction.dx / 20, it.y, it.z + moveSpeed * team.color.direction.dz / 20, 0F, 0F)
+                tapArmorStand?.setPositionAndRotation(x + moveSpeed * team.color.direction.dx / 20, y, z + moveSpeed * team.color.direction.dz / 20, 45F, 0F)
             } else {
                 destroy()
                 Packet.INFO.chat(RED.toString() + "MISS", GAME_INFO).sendTo(team.rhythmReceiver.player)

@@ -21,7 +21,6 @@ package com.github.patrick.rhythm.util
 
 import com.github.noonmaru.tap.ChatType
 import com.github.noonmaru.tap.packet.Packet
-import org.bukkit.Bukkit.broadcastMessage
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import org.bukkit.scoreboard.Score
@@ -47,6 +46,7 @@ class RhythmTeam(team: Team, val color: RhythmColor, score: Score) {
         score.score += (amount * multiplier)
         if (++connection > 9) {
             connection = 0
+            multiplier++
             rhythmReceiver.player.sendMessage("Multiplier: x$multiplier")
         }
         val temp = scoreMap[amount]?: return
@@ -59,7 +59,7 @@ class RhythmTeam(team: Team, val color: RhythmColor, score: Score) {
 
     fun miss() {
         Packet.INFO.chat(ChatColor.RED.toString() + "MISS", ChatType.GAME_INFO).sendTo(rhythmReceiver.player)
-        var temp = connection + multiplier * 10
+        var temp = (multiplier - 1) * 10 + connection
         if (temp > maxCombo) maxCombo = temp
         connection = 0
         multiplier = 1

@@ -26,11 +26,19 @@ import org.bukkit.Bukkit.broadcast
 import org.bukkit.Bukkit.getOnlinePlayers
 import org.bukkit.Bukkit.getPlayerExact
 import org.bukkit.Bukkit.getScoreboardManager
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType.DAMAGE_RESISTANCE
 import org.bukkit.scoreboard.Team
 
+/**
+ * Manages game to start or stop.
+ */
 object RhythmProcess {
     private var game: RhythmGame? = null
 
+    /**
+     * Starts the new game.
+     */
     fun startProcess() {
         if (game != null) broadcast("게임이 이미 진행중입니다.", "command.rhythm").also { return }
         val scoreboard = getScoreboardManager().mainScoreboard
@@ -50,10 +58,18 @@ object RhythmProcess {
         game = RhythmGame(teams)
     }
 
+    /**
+     * Stops the ongoing game status.
+     */
     fun stopProcess() {
-        getOnlinePlayers().forEach { it.stopSound(rhythmMusic) }
+        game?: broadcast("진행중인 게임이 없습니다.", "command.rhythm").also { return }
+        getOnlinePlayers().forEach {
+            for (i in 0..8) it.inventory.setItem(i, null)
+            it.stopSound(rhythmMusic)
+            it.allowFlight = false
+            it.addPotionEffect(PotionEffect(DAMAGE_RESISTANCE, 10, 255, false), true)
+        }
         RhythmGame.rhythmBlocks.values.forEach { blocks -> blocks.forEach { it.destroy() } }
-        if (game == null) broadcast("진행중인 게임이 없습니다.", "command.rhythm").also { return }
         game?.unregister()
         game = null
     }

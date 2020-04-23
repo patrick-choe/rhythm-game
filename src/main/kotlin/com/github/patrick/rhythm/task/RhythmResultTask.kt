@@ -42,7 +42,7 @@ class RhythmResultTask : RhythmTask {
                 " ${ChatColor.GOLD}GOOD: ${team.scoreMap[2]}" +
                 " ${ChatColor.LIGHT_PURPLE}POOP: ${team.scoreMap[1]}" +
                 " ${ChatColor.RED}MISS: ${team.scoreMap[0]}" +
-                " ${ChatColor.GRAY} MAX COMBO: ${team.maxCombo}") }
+                " ${ChatColor.GRAY}MAX COMBO: ${team.maxCombo}") }
         return null
     }
 }

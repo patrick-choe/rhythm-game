@@ -53,7 +53,6 @@ import org.bukkit.event.entity.EntitySpawnEvent
 import org.bukkit.event.inventory.InventoryInteractEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.player.PlayerDropItemEvent
-import org.bukkit.event.player.PlayerGameModeChangeEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.event.player.PlayerJoinEvent
@@ -65,6 +64,9 @@ import java.util.Collections.singleton
 class RhythmListener : Listener {
     private val senderID = rhythmSender.uniqueId
 
+    /**
+     * Called when player joins the game.
+     */
     @EventHandler fun onPlayerJoin(event: PlayerJoinEvent) {
         val player = event.player
         val rhythmReceiver = rhythmReceivers[player.uniqueId]
@@ -75,18 +77,36 @@ class RhythmListener : Listener {
         }
     }
 
+    /**
+     * Called when player leaves the game.
+     */
     @EventHandler fun onPlayerQuit(event: PlayerQuitEvent) {
         onlineRhythmPlayers.remove(event.player)
     }
 
+    /**
+     * Called when player changes the inventory slot.
+     */
     @EventHandler fun onPlayerSwap(event: PlayerItemHeldEvent) {
         val player = event.player
         val uuid = player.uniqueId
         val slot = event.newSlot
         if (slot == 4) return
+        player.inventory.heldItemSlot = 4
 
         if (senderID == uuid) rhythmTeams.forEach {
-            newBlock(RhythmBlock(rhythmStudioCenter.clone().add(getVector(slot, it.key.direction)), it.value, Tap.ITEM.fromItemStack(ItemStack(Material.WOOL, 1, getShort(slot))), slot))
+            newBlock(RhythmBlock(rhythmStudioCenter.clone().add(when (it.key.direction) {
+                RhythmDirection.NORTH -> Vector((slot - 4) * -1.0, -1.0, -5.0)
+                RhythmDirection.EAST -> Vector(5.0, -1.0, (slot - 4) * -1.0)
+                RhythmDirection.SOUTH -> Vector((slot - 4) * 1.0, -1.0, 5.0)
+                RhythmDirection.WEST -> Vector(-5.0, -1.0, (slot - 4) * 1.0)
+            }), it.value, Tap.ITEM.fromItemStack(ItemStack(Material.WOOL, 1, when (slot) {
+                0, 8 -> 14
+                1, 7 -> 4
+                2, 6 -> 5
+                3, 5 -> 9
+                else -> 0
+            }.toShort())), slot))
         }
         if (rhythmReceivers.keys.contains(uuid)) {
             val team = ((onlineRhythmPlayers[player]?: throw NullPointerException("Receiver cannot be null")) as RhythmReceiver).team
@@ -131,37 +151,30 @@ class RhythmListener : Listener {
             }
             team.miss()
         }
-        player.inventory.heldItemSlot = 4
     }
 
+    /** Blocking actions */
     @EventHandler fun onEvent(event: BlockBreakEvent) = cancel(event)
+    /** Blocking actions */
     @EventHandler fun onEvent(event: BlockDamageEvent) = cancel(event)
+    /** Blocking actions */
     @EventHandler fun onEvent(event: BlockPlaceEvent) = cancel(event)
+    /** Blocking actions */
     @EventHandler fun onEvent(event: EntityDamageEvent) = cancel(event)
+    /** Blocking actions */
     @EventHandler fun onEvent(event: EntityInteractEvent) = cancel(event)
+    /** Blocking actions */
     @EventHandler fun onEvent(event: EntitySpawnEvent) = cancel(event)
+    /** Blocking actions */
     @EventHandler fun onEvent(event: InventoryInteractEvent) = cancel(event)
+    /** Blocking actions */
     @EventHandler fun onEvent(event: InventoryOpenEvent) = cancel(event)
+    /** Blocking actions */
     @EventHandler fun onEvent(event: PlayerDropItemEvent) = cancel(event)
-    @EventHandler fun onEvent(event: PlayerGameModeChangeEvent) = cancel(event)
+    /** Blocking actions */
     @EventHandler fun onEvent(event: PlayerInteractEvent) = cancel(event)
 
     private fun cancel(event: Cancellable) {
         event.isCancelled = true
     }
-
-    private fun getVector(slot: Int, direction: RhythmDirection) = when (direction) {
-        RhythmDirection.NORTH -> Vector((slot - 4) * -1.0, -1.0, -5.0)
-        RhythmDirection.EAST -> Vector(5.0, -1.0, (slot - 4) * -1.0)
-        RhythmDirection.SOUTH -> Vector((slot - 4) * 1.0, -1.0, 5.0)
-        RhythmDirection.WEST -> Vector(-5.0, -1.0, (slot - 4) * 1.0)
-    }
-
-    private fun getShort(slot: Int) = when (slot) {
-        0, 8 -> 14
-        1, 7 -> 4
-        2, 6 -> 5
-        3, 5 -> 9
-        else -> 0
-    }.toShort()
 }

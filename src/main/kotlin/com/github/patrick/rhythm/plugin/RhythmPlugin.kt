@@ -20,6 +20,7 @@
 package com.github.patrick.rhythm.plugin
 
 import com.github.patrick.rhythm.process.RhythmCommand
+import com.github.patrick.rhythm.process.RhythmProcess.stopProcess
 import com.github.patrick.rhythm.task.RhythmConfigTask
 import com.github.patrick.rhythm.util.RhythmColor
 import org.bukkit.Bukkit.getScheduler
@@ -51,6 +52,7 @@ class RhythmPlugin : JavaPlugin() {
         lateinit var rhythmGiver: String
         val rhythmReceivers = HashMap<RhythmColor, String>()
     }
+
     /**
      * Following overridden method executes when the plugin is initializing.
      * It saves default configuration if the 'config.yml' does not exist,
@@ -65,4 +67,6 @@ class RhythmPlugin : JavaPlugin() {
         getScheduler().runTaskTimer(this, RhythmConfigTask(), 0, 1)
         instance = this
     }
+
+    override fun onDisable() = stopProcess()
 }

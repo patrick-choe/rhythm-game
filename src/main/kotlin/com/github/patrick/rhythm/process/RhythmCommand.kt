@@ -26,6 +26,9 @@ import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
 
+/**
+ * Manages rhythm commands
+ */
 class RhythmCommand : CommandExecutor, TabCompleter {
     /**
      * Executes the given command, returning its success
@@ -37,11 +40,15 @@ class RhythmCommand : CommandExecutor, TabCompleter {
      * @return true if a valid command, otherwise false
      */
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        if (!sender.hasPermission("command.rhythm")) return false
+        if (!sender.hasPermission("command.rhythm") || args.isNullOrEmpty()) return false
         when (args[0]) {
             "start" -> startProcess()
             "stop" -> rhythmStatus = false
-            else -> helpCommand(sender)
+            "help" -> {
+                sender.sendMessage("##### Rhythm Help #####")
+                sender.sendMessage("/rhythm start: Starts the rhythm game")
+                sender.sendMessage("/rhythm stop: Stops the rhythm game")
+            }
         }
         return true
     }
@@ -62,12 +69,6 @@ class RhythmCommand : CommandExecutor, TabCompleter {
             1 -> listOf("help", "start", "stop").filter(args[0])
             else -> emptyList()
         }
-
-    private fun helpCommand(sender: CommandSender) {
-        sender.sendMessage("##### Rhythm Help #####")
-        sender.sendMessage("/rhythm start: Starts the rhythm game")
-        sender.sendMessage("/rhythm stop: Stops the rhythm game")
-    }
 
     private fun Iterable<String>.filter(predicate: String) = filter { it.startsWith(predicate) }
 }

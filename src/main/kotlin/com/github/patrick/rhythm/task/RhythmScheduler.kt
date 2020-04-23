@@ -25,6 +25,9 @@ import com.github.patrick.rhythm.process.RhythmProcess.stopProcess
 class RhythmScheduler : Runnable {
     private var rhythmTask: RhythmTask? = null
 
+    /**
+     * Called on initial process
+     */
     init {
         rhythmTask = RhythmTitleTask()
     }
