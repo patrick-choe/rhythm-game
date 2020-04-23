@@ -19,7 +19,6 @@
 
 package com.github.patrick.rhythm.util
 
-import com.github.noonmaru.tap.ChatType.GAME_INFO
 import com.github.noonmaru.tap.Tap
 import com.github.noonmaru.tap.entity.TapArmorStand
 import com.github.noonmaru.tap.item.TapItemStack
@@ -28,7 +27,6 @@ import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.moveSpeed
 import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointDestroy
 import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmLength
 import org.bukkit.Bukkit.getOnlinePlayers
-import org.bukkit.ChatColor.RED
 import org.bukkit.Location
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
@@ -44,7 +42,7 @@ class RhythmBlock(loc: Location, val team: RhythmTeam, private val bulletItem: T
         private set
 
     init {
-        tapArmorStand?.apply { setUp(this) }
+        tapArmorStand?.setUp()
         armorStand = tapArmorStand?.bukkitEntity
         spawnTo(getOnlinePlayers())
         tapArmorStand?.setPositionAndRotation(loc.x, loc.y, loc.z, 45F, 0F)
@@ -56,22 +54,20 @@ class RhythmBlock(loc: Location, val team: RhythmTeam, private val bulletItem: T
     }
 
     fun spawnTo(players: Collection<Player?>?) = players?.let {
-        updateEquipmentTo(it)
+        it.updateEquipmentTo()
         Packet.ENTITY.metadata(armorStand).sendTo(it)
         tapArmorStand?.apply { Packet.ENTITY.teleport(armorStand, posX, posY, posZ, 45F, 0F, false).sendTo(players) }
         if (ticks < 1) Packet.ENTITY.spawnMob(armorStand).sendTo(it)
     }
 
-    private fun setUp(stand: TapArmorStand) {
-        stand.apply {
-            isInvisible = true
-            isMarker = true
-            setGravity(false)
-            setBasePlate(false)
-        }
+    private fun TapArmorStand.setUp() = apply {
+        isInvisible = true
+        isMarker = true
+        setGravity(false)
+        setBasePlate(false)
     }
 
-    private fun updateEquipmentTo(players: Collection<Player?>?) = players?.apply {
+    private fun Collection<Player?>.updateEquipmentTo() = apply {
         tapArmorStand?.id?.let { Packet.ENTITY.equipment(it, EquipmentSlot.HEAD, bulletItem).sendTo(this) }
     }
 
@@ -80,7 +76,7 @@ class RhythmBlock(loc: Location, val team: RhythmTeam, private val bulletItem: T
             spawnTo(getOnlinePlayers())
             if (dead) return
 
-            if (++ticks == 2) updateEquipmentTo(getOnlinePlayers())
+            if (++ticks == 2) getOnlinePlayers().updateEquipmentTo()
 
             if (!removed) {
                 if ((ticks * moveSpeed / 20) - rhythmLength > pointDestroy) {
@@ -90,9 +86,7 @@ class RhythmBlock(loc: Location, val team: RhythmTeam, private val bulletItem: T
                 tapArmorStand?.setPositionAndRotation(x + moveSpeed * team.color.direction.dx / 20, y, z + moveSpeed * team.color.direction.dz / 20, 45F, 0F)
             } else {
                 destroy()
-                Packet.INFO.chat(RED.toString() + "MISS", GAME_INFO).sendTo(team.rhythmReceiver.player)
-                team.connection = 0
-                team.multiplier = 1
+                team.miss()
             }
         }
     }
