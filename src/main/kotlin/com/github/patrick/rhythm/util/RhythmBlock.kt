@@ -23,16 +23,14 @@ import com.github.noonmaru.tap.Tap
 import com.github.noonmaru.tap.entity.TapArmorStand
 import com.github.noonmaru.tap.item.TapItemStack
 import com.github.noonmaru.tap.packet.Packet
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.moveSpeed
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointDestroy
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmLength
+import com.github.patrick.rhythm.*
 import org.bukkit.Bukkit.getOnlinePlayers
 import org.bukkit.Location
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot
 
-class RhythmBlock(loc: Location, val team: RhythmTeam, private val bulletItem: TapItemStack, val slot: Int) {
+class RhythmBlock(loc: Location, val team: RhythmTeam, private val bulletItem: TapItemStack) {
     private val tapArmorStand: TapArmorStand? = Tap.ENTITY.createEntity(ArmorStand::class.java)
     private val armorStand: ArmorStand?
     private var removed = false

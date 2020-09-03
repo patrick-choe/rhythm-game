@@ -13,7 +13,7 @@ commands:
   rhythm:
     description: Rhythm Game Command
     aliases: [rc]
-    permission: command.typing
+    permission: command.rhythm
     permission-message: You do not have permission to use typing game commands.
     usage: "Usage: /<command> help"
 default-permission: op

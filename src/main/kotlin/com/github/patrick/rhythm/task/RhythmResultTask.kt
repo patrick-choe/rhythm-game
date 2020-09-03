@@ -20,7 +20,7 @@
 package com.github.patrick.rhythm.task
 
 import com.github.noonmaru.tap.packet.Packet
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmTeams
+import com.github.patrick.rhythm.rhythmTeams
 import com.github.patrick.rhythm.util.RhythmTeam
 import org.bukkit.Bukkit.broadcastMessage
 import org.bukkit.ChatColor
@@ -32,7 +32,7 @@ class RhythmResultTask : RhythmTask {
      */
     override fun execute(): RhythmTask? {
         val teams = ArrayList(rhythmTeams.values).apply {
-            sortWith(Comparator { team1: RhythmTeam, team2: RhythmTeam -> team2.score.score.compareTo(team1.score.score) } )
+            sortWith { team1: RhythmTeam, team2: RhythmTeam -> team2.score.score.compareTo(team1.score.score) }
         }
         Packet.TITLE.compound(ChatColor.RED.toString() + "게임종료!", "우승: ${teams.first().displayName}", 5, 60, 10).sendAll()
         teams.forEachIndexed { index, team -> broadcastMessage(

@@ -19,7 +19,7 @@
 
 package com.github.patrick.rhythm.process
 
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmStatus
+import com.github.patrick.rhythm.rhythmStatus
 import com.github.patrick.rhythm.process.RhythmProcess.startProcess
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor

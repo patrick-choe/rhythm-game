@@ -10,9 +10,9 @@ rhythm-points:
   destroy: 0.2
 studio-center:
   world: "world"
-  x: 103.5
-  y: 65.0
-  z: 551.5
+  x: 0.5
+  y: 5.0
+  z: 0.5
 giver: PatrickKR
 receivers:
   RED: PatrickKR

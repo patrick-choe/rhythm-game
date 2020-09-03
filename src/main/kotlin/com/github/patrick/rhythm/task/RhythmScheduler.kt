@@ -19,7 +19,7 @@
 
 package com.github.patrick.rhythm.task
 
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmBlocks
+import com.github.patrick.rhythm.rhythmBlocks
 import com.github.patrick.rhythm.process.RhythmProcess.stopProcess
 
 class RhythmScheduler : Runnable {
@@ -45,7 +45,13 @@ class RhythmScheduler : Runnable {
      * @see java.lang.Thread.run
      */
     override fun run() {
-        rhythmBlocks.values.forEach { blocks -> blocks.removeIf { it.dead } }
+        rhythmBlocks.values.forEach { slots ->
+            slots.forEach { blocks ->
+                blocks.removeIf {
+                    it.dead
+                }
+            }
+        }
         rhythmTask = rhythmTask?.execute()
         if (rhythmTask == null) stopProcess()
     }

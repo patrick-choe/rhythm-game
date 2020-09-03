@@ -20,11 +20,9 @@
 package com.github.patrick.rhythm.util
 
 import org.bukkit.entity.Player
-import java.util.UUID
 
 open class RhythmPlayer(player: Player) {
-    val uniqueId: UUID = player.uniqueId
-    val name: String = player.name
+    val uniqueId = requireNotNull(player.uniqueId)
 
     open fun prepare() {}
 }

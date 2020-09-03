@@ -19,8 +19,7 @@
 
 package com.github.patrick.rhythm.process
 
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmMusic
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmReceivers
+import com.github.patrick.rhythm.*
 import com.github.patrick.rhythm.util.RhythmColor
 import org.bukkit.Bukkit.broadcast
 import org.bukkit.Bukkit.getOnlinePlayers
@@ -45,7 +44,7 @@ object RhythmProcess {
         scoreboard.teams.forEach { it.unregister() }
 
         val teams = HashMap<Team, RhythmColor>()
-        rhythmReceivers.forEach {
+        rhythmColorPlayers.forEach {
             if (getPlayerExact(it.value) != null) {
                 val team = scoreboard.registerNewTeam(it.value)
                 team.prefix = it.key.color.toString()
@@ -64,12 +63,20 @@ object RhythmProcess {
     fun stopProcess() {
         game?: broadcast("진행중인 게임이 없습니다.", "command.rhythm").also { return }
         getOnlinePlayers().forEach {
-            for (i in 0..8) it.inventory.setItem(i, null)
+            for (i in 0 until 9) {
+                it.inventory.setItem(i, null)
+            }
             it.stopSound(rhythmMusic)
             it.allowFlight = false
             it.addPotionEffect(PotionEffect(DAMAGE_RESISTANCE, 10, 255, false), true)
         }
-        RhythmGame.rhythmBlocks.values.forEach { blocks -> blocks.forEach { it.destroy() } }
+        rhythmBlocks.values.forEach { slots ->
+            slots.forEach { blocks ->
+                blocks.forEach {
+                    it.destroy()
+                }
+            }
+        }
         game?.unregister()
         game = null
     }

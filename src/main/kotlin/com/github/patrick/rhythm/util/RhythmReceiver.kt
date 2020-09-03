@@ -19,8 +19,7 @@
 
 package com.github.patrick.rhythm.util
 
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmStudioCenter
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmStudioLength
+import com.github.patrick.rhythm.*
 import org.bukkit.GameMode
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player

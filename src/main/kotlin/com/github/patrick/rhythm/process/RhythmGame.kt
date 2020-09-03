@@ -19,16 +19,10 @@
 
 package com.github.patrick.rhythm.process
 
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.instance
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.moveSpeed
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmGiver
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmModifier
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmStudioLength
+import com.github.patrick.rhythm.*
 import com.github.patrick.rhythm.task.RhythmScheduler
 import com.github.patrick.rhythm.util.RhythmBlock
 import com.github.patrick.rhythm.util.RhythmColor
-import com.github.patrick.rhythm.util.RhythmPlayer
-import com.github.patrick.rhythm.util.RhythmReceiver
 import com.github.patrick.rhythm.util.RhythmSender
 import com.github.patrick.rhythm.util.RhythmTeam
 import org.bukkit.Bukkit.getPlayerExact
@@ -36,35 +30,18 @@ import org.bukkit.Bukkit.getScheduler
 import org.bukkit.Bukkit.getScoreboardManager
 import org.bukkit.ChatColor
 import org.bukkit.Material.WOOL
-import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList.unregisterAll
 import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitTask
 import org.bukkit.scoreboard.DisplaySlot
 import org.bukkit.scoreboard.Team
-import java.util.IdentityHashMap
-import java.util.UUID
+import java.util.LinkedList
 
 /**
  * Rhythm game instance
  */
 class RhythmGame(teams: HashMap<Team, RhythmColor>) {
-    /**
-     * Stores game variables
-     */
-    companion object {
-        var rhythmStatus = false
-        var rhythmLength = rhythmStudioLength + rhythmModifier
-        var totalTicks = 20 / moveSpeed
-        val rhythmTeams = HashMap<RhythmColor, RhythmTeam>()
-        val rhythmReceivers = HashMap<UUID, RhythmReceiver>()
-        val onlineRhythmPlayers = IdentityHashMap<Player, RhythmPlayer>()
-        lateinit var rhythmSender: RhythmSender
-        private lateinit var task: BukkitTask
-
-        val rhythmBlocks = HashMap<RhythmColor, ArrayList<RhythmBlock>>()
-        fun newBlock(block: RhythmBlock) = rhythmBlocks[block.team.color]?.add(block)
-    }
+    private var task: BukkitTask
 
     /**
      * Called on initial process
@@ -90,7 +67,9 @@ class RhythmGame(teams: HashMap<Team, RhythmColor>) {
                 }
             }
 
-            rhythmBlocks[it.value] = ArrayList()
+            rhythmBlocks[it.value] = Array(9) {
+                LinkedList()
+            }
             val rhythmReceiver = rhythmTeam.rhythmReceiver
             rhythmTeams[it.value] = rhythmTeam
             rhythmReceivers[rhythmReceiver.uniqueId] = rhythmReceiver

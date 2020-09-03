@@ -19,16 +19,7 @@
 
 package com.github.patrick.rhythm.task
 
-import com.github.patrick.rhythm.plugin.RhythmPlugin
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointDestroy
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointPerfect
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmMusic
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmBlocks
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmLength
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmReceivers
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmSender
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmStatus
-import com.github.patrick.rhythm.process.RhythmGame.Companion.totalTicks
+import com.github.patrick.rhythm.*
 import com.github.patrick.rhythm.process.RhythmListener
 import org.bukkit.Bukkit
 import org.bukkit.Bukkit.getOnlinePlayers
@@ -43,9 +34,15 @@ class RhythmGameTask : RhythmTask {
      */
     override fun execute(): RhythmTask? {
         ++ticks
-        rhythmBlocks.values.forEach { blocks -> blocks.forEach { it.onUpdate() } }
+        rhythmBlocks.values.forEach { slots ->
+            slots.forEach { blocks ->
+                blocks.forEach {
+                    it.onUpdate()
+                }
+            }
+        }
         if (ticks == 0) {
-            Bukkit.getPluginManager().registerEvents(RhythmListener(), RhythmPlugin.instance)
+            Bukkit.getPluginManager().registerEvents(RhythmListener(), instance)
             rhythmSender.player.playSound(rhythmSender.player.location, rhythmMusic, MASTER, 60000000F, 1F)
             getOnlinePlayers().forEach { it.inventory.heldItemSlot = 4 }
         }

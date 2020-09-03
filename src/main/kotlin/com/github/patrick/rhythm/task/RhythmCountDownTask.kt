@@ -20,7 +20,7 @@
 package com.github.patrick.rhythm.task
 
 import com.github.noonmaru.tap.packet.Packet
-import com.github.patrick.rhythm.process.RhythmGame.Companion.onlineRhythmPlayers
+import com.github.patrick.rhythm.onlineRhythmPlayers
 import org.bukkit.ChatColor
 
 class RhythmCountDownTask : RhythmTask {

@@ -22,19 +22,7 @@ package com.github.patrick.rhythm.process
 import com.github.noonmaru.tap.ChatType.GAME_INFO
 import com.github.noonmaru.tap.Tap
 import com.github.noonmaru.tap.packet.Packet
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.moveSpeed
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointGood
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointGreat
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointPerfect
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointPoop
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmStudioCenter
-import com.github.patrick.rhythm.process.RhythmGame.Companion.newBlock
-import com.github.patrick.rhythm.process.RhythmGame.Companion.onlineRhythmPlayers
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmBlocks
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmLength
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmReceivers
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmSender
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmTeams
+import com.github.patrick.rhythm.*
 import com.github.patrick.rhythm.util.RhythmBlock
 import com.github.patrick.rhythm.util.RhythmDirection
 import com.github.patrick.rhythm.util.RhythmReceiver
@@ -44,22 +32,10 @@ import org.bukkit.Material
 import org.bukkit.event.Cancellable
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.block.BlockBreakEvent
-import org.bukkit.event.block.BlockDamageEvent
-import org.bukkit.event.block.BlockPlaceEvent
-import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.entity.EntityInteractEvent
-import org.bukkit.event.entity.EntitySpawnEvent
-import org.bukkit.event.inventory.InventoryInteractEvent
-import org.bukkit.event.inventory.InventoryOpenEvent
-import org.bukkit.event.player.PlayerDropItemEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerItemHeldEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.inventory.*
+import org.bukkit.event.player.*
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
-import java.util.Collections.singleton
 
 class RhythmListener : Listener {
     private val senderID = rhythmSender.uniqueId
@@ -73,7 +49,13 @@ class RhythmListener : Listener {
         if (rhythmReceiver == null && senderID != player.uniqueId) player.gameMode = SPECTATOR else {
             onlineRhythmPlayers[player] = rhythmReceiver
             rhythmReceiver?.prepare()
-            rhythmBlocks.values.forEach { blocks -> blocks.forEach { it.spawnTo(singleton(player)) } }
+            rhythmBlocks.values.forEach { slots ->
+                slots.forEach { blocks ->
+                    blocks.forEach {
+                        it.spawnTo(setOf(player))
+                    }
+                }
+            }
         }
     }
 
@@ -106,23 +88,14 @@ class RhythmListener : Listener {
                 2, 6 -> 5
                 3, 5 -> 9
                 else -> 0
-            }.toShort())), slot))
+            }.toShort()))), slot)
         }
         if (rhythmReceivers.keys.contains(uuid)) {
-            val team = ((onlineRhythmPlayers[player]?: throw NullPointerException("Receiver cannot be null")) as RhythmReceiver).team
-            var highestScore = -rhythmLength
-            var highestBlock: RhythmBlock? = null
-            var score: Int
-            rhythmBlocks[team.color]?.forEach {
-                if (it.slot == slot) {
-                    val progress = (it.ticks * moveSpeed / 20) - rhythmLength
-                    if (progress > highestScore) {
-                        highestBlock = it
-                        highestScore = progress
-                    }
-                }
-            }
-            highestBlock?.let {
+            val team = (onlineRhythmPlayers[player] as RhythmReceiver).team
+            val highestBlock = rhythmBlocks[team.color]?.get(slot)?.peek()
+            highestBlock?.let { it ->
+                val highestScore = highestBlock.ticks * moveSpeed / 20 - rhythmLength
+                val score: Int
                 when {
                     highestScore > pointPerfect -> {
                         score = 4
@@ -146,6 +119,7 @@ class RhythmListener : Listener {
                     }
                 }
                 team.addScore(score)
+                rhythmBlocks[team.color]?.get(slot)?.poll()
                 it.destroy()
                 return
             }
@@ -153,18 +127,6 @@ class RhythmListener : Listener {
         }
     }
 
-    /** Blocking actions */
-    @EventHandler fun onEvent(event: BlockBreakEvent) = cancel(event)
-    /** Blocking actions */
-    @EventHandler fun onEvent(event: BlockDamageEvent) = cancel(event)
-    /** Blocking actions */
-    @EventHandler fun onEvent(event: BlockPlaceEvent) = cancel(event)
-    /** Blocking actions */
-    @EventHandler fun onEvent(event: EntityDamageEvent) = cancel(event)
-    /** Blocking actions */
-    @EventHandler fun onEvent(event: EntityInteractEvent) = cancel(event)
-    /** Blocking actions */
-    @EventHandler fun onEvent(event: EntitySpawnEvent) = cancel(event)
     /** Blocking actions */
     @EventHandler fun onEvent(event: InventoryInteractEvent) = cancel(event)
     /** Blocking actions */

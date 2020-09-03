@@ -19,29 +19,16 @@
 
 package com.github.patrick.rhythm.task
 
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.instance
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.lastModified
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.moveSpeed
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointDestroy
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointGood
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointGreat
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointPerfect
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.pointPoop
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmGiver
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmModifier
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmMusic
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmReceivers
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmStudioCenter
-import com.github.patrick.rhythm.plugin.RhythmPlugin.Companion.rhythmStudioLength
-import com.github.patrick.rhythm.process.RhythmGame.Companion.rhythmLength
+import com.github.patrick.rhythm.*
 import com.github.patrick.rhythm.util.RhythmColor
-import org.bukkit.Bukkit.getLogger
 import org.bukkit.Bukkit.getWorld
 import org.bukkit.Location
 import org.bukkit.configuration.file.YamlConfiguration.loadConfiguration
 import java.io.File
 
 class RhythmConfigTask : Runnable {
+    private var lastModified = 0L
+
     /**
      * Following overridden method 'run' executes every single tick
      * to find whether the 'config.yml' file has changed.
@@ -55,35 +42,30 @@ class RhythmConfigTask : Runnable {
             lastModified = last
             val config = loadConfiguration(file)
             moveSpeed = config.getDouble("move-speed", 1.0)
-            rhythmMusic = config.getString("rhythm-music")?: throw NullPointerException("Song cannot be null")
+            rhythmMusic = requireNotNull(config.getString("rhythm-music"))
             rhythmStudioLength = config.getInt("studio-length", 16)
             rhythmModifier = config.getDouble("rhythm-modifier")
             rhythmLength = rhythmStudioLength + rhythmModifier
 
-            val calcPoint = config.getConfigurationSection("rhythm-points")
-                ?: throw NullPointerException("Points not found")
+            val calcPoint = requireNotNull(config.getConfigurationSection("rhythm-points"))
             pointPoop = calcPoint.getDouble("poop")
             pointGood = calcPoint.getDouble("good")
             pointGreat = calcPoint.getDouble("great")
             pointPerfect = calcPoint.getDouble("perfect")
             pointDestroy = calcPoint.getDouble("destroy")
 
-            val loc = config.getConfigurationSection("studio-center")
-                ?: throw NullPointerException("Center location not found")
-            getWorld(loc.getString("world"))?.let {
-                rhythmStudioCenter = Location(it, loc.getDouble("x"), loc.getDouble("y"), loc.getDouble("z"))
-            }
+            val loc = requireNotNull(config.getConfigurationSection("studio-center"))
+            rhythmStudioCenter = Location(requireNotNull(getWorld(loc.getString("world"))), loc.getDouble("x"), loc.getDouble("y"), loc.getDouble("z"))
 
-            val players = config.getConfigurationSection("receivers")
-                ?: throw NullPointerException("Rhythm players not found")
             rhythmGiver = config.getString("giver")
-            rhythmReceivers.clear()
-            players.getString("RED")?.let { rhythmReceivers[RhythmColor.RED] = it }
-            players.getString("YELLOW")?.let { rhythmReceivers[RhythmColor.YELLOW] = it }
-            players.getString("GREEN")?.let { rhythmReceivers[RhythmColor.GREEN] = it }
-            players.getString("BLUE")?.let { rhythmReceivers[RhythmColor.BLUE] = it }
+            rhythmColorPlayers.clear()
+            val players = requireNotNull(config.getConfigurationSection("receivers"))
+            players.getString("RED")?.let { rhythmColorPlayers[RhythmColor.RED] = it }
+            players.getString("YELLOW")?.let { rhythmColorPlayers[RhythmColor.YELLOW] = it }
+            players.getString("GREEN")?.let { rhythmColorPlayers[RhythmColor.GREEN] = it }
+            players.getString("BLUE")?.let { rhythmColorPlayers[RhythmColor.BLUE] = it }
 
-            getLogger().info("RELOAD CONFIG")
+            instance.logger.info("RELOAD CONFIG")
         }
     }
 }
